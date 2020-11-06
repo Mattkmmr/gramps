@@ -1,7 +1,8 @@
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2011 Nick Hall
-# Copyright (C) 2011       Tim G L Lyons
+# Copyright (C) 2011 Tim G L Lyons
+# Copyright (C) 2020 Matthias Kemmer
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,18 +19,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 #
 # Gtk
 #
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 #
 # Gramps modules
 #
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 from gramps.gen.plug import Gramplet
 from gramps.gui.widgets.styledtexteditor import StyledTextEditor
 from gramps.gui.widgets import SimpleButton
@@ -37,10 +38,12 @@ from gramps.gen.lib import StyledText
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 _ = glocale.translation.gettext
 
+
 class Notes(Gramplet):
     """
     Displays the notes for an object.
     """
+
     def init(self):
         self.gui.WIDGET = self.build_gui()
         self.gui.get_container_widget().remove(self.gui.textview)
@@ -144,10 +147,12 @@ class Notes(Gramplet):
             return True
         return False
 
+
 class PersonNotes(Notes):
     """
     Displays the notes for a person.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'person-update', self.update)
 
@@ -174,10 +179,12 @@ class PersonNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class EventNotes(Notes):
     """
     Displays the notes for an event.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'event-update', self.update)
         self.connect_signal('Event', self.update)
@@ -202,10 +209,12 @@ class EventNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class FamilyNotes(Notes):
     """
     Displays the notes for a family.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'family-update', self.update)
         self.connect_signal('Family', self.update)
@@ -230,10 +239,12 @@ class FamilyNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class PlaceNotes(Notes):
     """
     Displays the notes for a place.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'place-update', self.update)
         self.connect_signal('Place', self.update)
@@ -258,10 +269,12 @@ class PlaceNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class SourceNotes(Notes):
     """
     Displays the notes for a source.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'source-update', self.update)
         self.connect_signal('Source', self.update)
@@ -286,10 +299,12 @@ class SourceNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class CitationNotes(Notes):
     """
     Displays the notes for a Citation.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'citation-update', self.update)
         self.connect_signal('Citation', self.update)
@@ -314,10 +329,12 @@ class CitationNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class RepositoryNotes(Notes):
     """
     Displays the notes for a repository.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'repository-update', self.update)
         self.connect_signal('Repository', self.update)
@@ -342,10 +359,12 @@ class RepositoryNotes(Notes):
         else:
             self.set_has_data(False)
 
+
 class MediaNotes(Notes):
     """
     Displays the notes for a media object.
     """
+
     def db_changed(self):
         self.connect(self.dbstate.db, 'media-update', self.update)
         self.connect_signal('Media', self.update)
@@ -365,6 +384,36 @@ class MediaNotes(Notes):
             active = self.dbstate.db.get_media_from_handle(active_handle)
             if active:
                 self.get_notes(active)
+            else:
+                self.set_has_data(False)
+        else:
+            self.set_has_data(False)
+
+
+class NoteGramplet(Notes):
+    """
+    Display a single note in NoteView.
+    """
+
+    def db_changed(self):
+        self.connect(self.dbstate.db, 'note-update', self.update)
+        self.connect_signal('Note', self.update)
+
+    def update_has_data(self):
+        active_handle = self.get_active('Note')
+        if active_handle:
+            active = self.dbstate.db.get_note_from_handle(active_handle)
+            self.set_has_data(self.get_has_data(active))
+        else:
+            self.set_has_data(False)
+
+    def main(self):
+        self.clear_text()
+        active_handle = self.get_active('Note')
+        if active_handle:
+            active = self.dbstate.db.get_note_from_handle(active_handle)
+            if active:
+                self.texteditor.set_text(active.get_styledtext())
             else:
                 self.set_has_data(False)
         else:
