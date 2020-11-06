@@ -399,14 +399,6 @@ class NoteGramplet(Notes):
         self.connect(self.dbstate.db, 'note-update', self.update)
         self.connect_signal('Note', self.update)
 
-    def update_has_data(self):
-        active_handle = self.get_active('Note')
-        if active_handle:
-            active = self.dbstate.db.get_note_from_handle(active_handle)
-            self.set_has_data(self.get_has_data(active))
-        else:
-            self.set_has_data(False)
-
     def main(self):
         self.clear_text()
         active_handle = self.get_active('Note')
@@ -414,7 +406,3 @@ class NoteGramplet(Notes):
             active = self.dbstate.db.get_note_from_handle(active_handle)
             if active:
                 self.texteditor.set_text(active.get_styledtext())
-            else:
-                self.set_has_data(False)
-        else:
-            self.set_has_data(False)
